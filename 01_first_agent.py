@@ -23,6 +23,8 @@ print("=" * 60)
 print("  Question 1: Training data (the LLM knows this)")
 print("=" * 60)
 print()
+
+# Invode the agent
 response = agent("Who won the 2024 NBA Championship?")
 print(f"\n{response}\n")
 
@@ -33,6 +35,41 @@ print("=" * 60)
 print()
 response = agent("What are today's live NBA scores?")
 print(f"\n{response}\n")
+
+# Check Agent messages loaded into the conversation
+print(f"Current Agent messages: {agent.messages}")
+print(f"Number of messages in the conversation: {len(agent.messages)}")
+print("-" * 100)
+print("\n")
+
+# Check current system prompt
+print(f"Current Agent system prompt: {agent.system_prompt}")
+print("-" * 100)
+print("\n")
+
+# Update the system prompt
+agent.system_prompt = "You are a comedian that tells jokes about basketball."
+
+print(f"Updated Agent system prompt: {agent.system_prompt}")
+print("-" * 100)
+print("\n")
+
+response = agent("Did the Cavs win their last game?")
+print(f"\n{response}\n")
+
+# Check the number of messages in the conversation again
+print(f"Updated current Agent messages: {agent.messages}")
+print(f"Number of messages in the conversation: {len(agent.messages)}")
+print("-" * 100)
+print("\n")
+
+# Remove all messages
+print("Clearing all messages...")
+agent.messages.clear()
+
+print(f"Cleared Agent messages: {agent.messages}")
+print("-" * 100)
+print("\n")
 
 # ============================================================
 # TRY THIS:

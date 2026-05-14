@@ -20,7 +20,7 @@ from mcp import StdioServerParameters, stdio_client
 from strands import Agent
 from strands.tools.mcp import MCPClient
 from src.config import get_model
-from src.hooks import ToolDisplayHook
+from src.hooks import LoggingHook
 
 # ── The criteria — EDIT THIS ──────────────────────────────
 # Natural language that controls agent behavior.
@@ -64,7 +64,7 @@ with mcp_client:
         model=get_model(),
         tools=tools,
         system_prompt=HEARTBEAT_CRITERIA,
-        callback_handler=ToolDisplayHook(),
+        hooks=[LoggingHook(verbose=True)]
     )
 
     print("=" * 60)

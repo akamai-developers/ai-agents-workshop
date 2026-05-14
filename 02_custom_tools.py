@@ -15,7 +15,7 @@ import urllib.request
 from strands import Agent, tool
 from strands_tools import current_time
 from src.config import get_model
-from src.hooks import ToolDisplayHook
+from src.hooks import LoggingHook
 
 
 # ── A custom tool — a real API call with @tool ────────────
@@ -47,7 +47,7 @@ agent = Agent(
     model=get_model(),
     tools=[get_weather, current_time],
     system_prompt="You are a helpful assistant. Use your tools when relevant.",
-    callback_handler=ToolDisplayHook(),
+    hooks=[LoggingHook(verbose=True)]
 )
 
 print("=" * 60)

@@ -19,7 +19,7 @@ from strands import Agent, tool
 from strands.tools.mcp import MCPClient
 from strands_tools import current_time
 from src.config import get_model
-from src.hooks import ToolDisplayHook
+from src.hooks import LoggingHook
 
 # ── Your custom tool from Section 2 ──────────────────────
 @tool
@@ -61,7 +61,7 @@ with mcp_client:
             "You are an NBA analyst agent. Use your tools to look up real-time data. "
             "Use resolve_team_id and resolve_player_id when needed."
         ),
-        callback_handler=ToolDisplayHook(),
+        hooks=[LoggingHook(verbose=True)]
     )
 
     print("=" * 60)
@@ -88,6 +88,7 @@ with mcp_client:
         ),
         name="nba_researcher",
         description="Research NBA stats, scores, and standings using real-time data tools.",
+        hooks=[LoggingHook(verbose=True)]
     )
 
     orchestrator = Agent(
@@ -98,7 +99,7 @@ with mcp_client:
             "to get NBA data, then write an engaging 2-3 sentence summary. "
             "Include the weather if the user mentions a city."
         ),
-        callback_handler=ToolDisplayHook(),
+        hooks=[LoggingHook(verbose=True)],
     )
 
     print("=" * 60)

@@ -15,7 +15,7 @@ from strands import Agent
 from strands.tools.mcp import MCPClient
 from strands.agent.conversation_manager import SlidingWindowConversationManager
 from src.config import get_model
-from src.hooks import ToolDisplayHook
+from src.hooks import LoggingHook
 
 mcp_client = MCPClient(lambda: stdio_client(
     StdioServerParameters(command="uvx", args=["nba-stats-mcp"])
@@ -35,7 +35,7 @@ with mcp_client:
         model=model,
         tools=tools,
         system_prompt="You are an NBA analyst. Use your tools to answer questions.",
-        callback_handler=ToolDisplayHook(),
+        hooks=[LoggingHook(verbose=True)],
     )
 
     print("\n  Turn 1: What's the score of the Nuggets game?\n")
@@ -56,7 +56,7 @@ with mcp_client:
         model=model,
         tools=tools,
         system_prompt="You are an NBA analyst. Use your tools to answer questions.",
-        callback_handler=ToolDisplayHook(),
+        hooks=[LoggingHook(verbose=True)]
         conversation_manager=SlidingWindowConversationManager(window_size=10),
     )
 
