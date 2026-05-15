@@ -211,7 +211,7 @@ EXECUTORS = {
 
 # ── The loop ────────────────────────────────────────────────────
 nba_mcp = MCPClient(lambda: stdio_client(
-    StdioServerParameters(command="uvx", args=["nba-stats-mcp"])
+    StdioServerParameters(command="nba-stats-mcp", args=[])
 ))
 
 with nba_mcp:

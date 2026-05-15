@@ -30,7 +30,7 @@ def get_weather(city: str) -> str:
 # over stdin/stdout. The MCPClient context manager keeps that subprocess
 # alive for the duration of the `with` block.
 nba_mcp = MCPClient(lambda: stdio_client(
-    StdioServerParameters(command="uvx", args=["nba-stats-mcp"])
+    StdioServerParameters(command="nba-stats-mcp", args=[])
 ))
 
 model = get_model()

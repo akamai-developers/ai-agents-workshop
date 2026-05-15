@@ -40,7 +40,7 @@ def get_weather(city: str) -> str:
 
 # ── Spin up the NBA MCP server over stdio ───────────────────
 nba_mcp = MCPClient(lambda: stdio_client(
-    StdioServerParameters(command="uvx", args=["nba-stats-mcp"])
+    StdioServerParameters(command="nba-stats-mcp", args=[])
 ))
 
 model = get_model()
