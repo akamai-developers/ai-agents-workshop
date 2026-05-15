@@ -7,6 +7,7 @@ import _path  # noqa: F401
 
 from strands import Agent
 from strands.agent.conversation_manager import SlidingWindowConversationManager
+from strands_tools import current_time
 
 from src.config import get_model
 from src.hooks import LoggingHook
@@ -22,6 +23,7 @@ model = get_model()
 # to the team you mentioned earlier. Cheap, no external store.
 conv_agent = Agent(
     model=model,
+    tools=[current_time],
     system_prompt="You are an NBA analyst. Be brief.",
     conversation_manager=SlidingWindowConversationManager(window_size=10),
     hooks=[LoggingHook()],

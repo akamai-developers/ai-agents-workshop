@@ -18,6 +18,7 @@ import _path  # noqa: F401
 
 from strands import Agent
 from strands.agent.conversation_manager import SlidingWindowConversationManager
+from strands_tools import current_time
 
 from src.config import get_model
 from src.hooks import LoggingHook
@@ -40,6 +41,7 @@ print("=" * 60)
 
 stateless = Agent(
     model=model,
+    tools=[current_time],
     system_prompt="You are an NBA analyst. Be brief.",
     hooks=[LoggingHook(verbose=False)],
 )
@@ -66,6 +68,7 @@ print("=" * 60)
 # get dropped. Good default; cheap; preserves recency.
 conv_agent = Agent(
     model=model,
+    tools=[current_time],
     system_prompt="You are an NBA analyst. Be brief.",
     conversation_manager=SlidingWindowConversationManager(window_size=10),
     hooks=[LoggingHook(verbose=False)],

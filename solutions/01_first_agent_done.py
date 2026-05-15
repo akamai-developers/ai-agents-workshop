@@ -4,10 +4,12 @@
 import _path  # noqa: F401
 
 from strands import Agent
+from strands_tools import current_time
 from src.config import get_model
 
 agent = Agent(
     model=get_model(),
+    tools=[current_time],
     system_prompt="You are a knowledgeable NBA analyst. Be concise.",
 )
 

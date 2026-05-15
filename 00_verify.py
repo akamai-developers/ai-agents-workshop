@@ -64,9 +64,16 @@ if all(checks):
     print("  Trying one round-trip through Strands…")
     try:
         from strands import Agent
+        from strands_tools import current_time
         from src.config import get_model
 
-        agent = Agent(model=get_model(), system_prompt="Reply with exactly the word: pong")
+        # Pass a no-op tool. vLLM v0.20+ rejects requests with `tools: []`;
+        # Strands always emits the field, so we need at least one tool here.
+        agent = Agent(
+            model=get_model(),
+            tools=[current_time],
+            system_prompt="Reply with exactly the word: pong",
+        )
         reply = str(agent("ping")).strip().lower()
         if "pong" in reply:
             ok("end-to-end call succeeded")
