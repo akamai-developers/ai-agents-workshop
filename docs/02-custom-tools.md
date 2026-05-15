@@ -1,5 +1,7 @@
 # Section 2: Custom Tools + Built-ins
 
+[← First Agent](01-your-first-agent.md) · [Index](README.md) · [Next → MCP + Multi-Agent](03-mcp-and-multi-agent.md)
+
 > A tool is a function. You write it, the agent decides when to call it.
 
 ## What You'll Learn
@@ -33,27 +35,29 @@ agent = Agent(tools=[get_weather, current_time])
 ## Run It
 
 ```
-python workshop/02_custom_tools.py
+python 02_custom_tools.py
 ```
 
 ## Expected Output
 
 ```
 ============================================================
-  Custom tool + built-in tool in one agent
-  Watch which tools the agent chooses!
+  Custom @tool + built-in tool — watch which one the agent picks
 ============================================================
 
-🔧 Tool Call: get_weather({"city": "Stanford, California"})
-🔧 Tool Call: current_time({})
-📊 Result: stanford, california: ☁️  +61°F
-📊 Result: 2026-05-05T17:07:49-07:00
+  ↳ [agent] tool call #1: get_weather
+      {
+        "city": "Stanford"
+      }
+  ↳ [agent] tool call #2: current_time
 
-The current weather in Stanford, California is ☁️ 61°F.
-The current time is 5:07 PM PDT.
+The weather at Stanford is ☁️ 61°F right now, and the current
+time in California is 5:07 PM PDT.
 ```
 
 The agent called YOUR function (`get_weather`) and a built-in (`current_time`). You wrote 5 lines of Python and the agent knew when to use it.
+
+`LoggingHook` (in `src/hooks.py`) is what prints those `↳ tool call #N` lines — it subscribes to Strands' `BeforeToolCallEvent` so you can SEE the agent loop instead of trusting that something happened.
 
 ## Try This
 

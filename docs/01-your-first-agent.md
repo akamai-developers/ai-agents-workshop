@@ -1,5 +1,7 @@
 # Section 1: Your First Agent
 
+[← Setup](00-setup.md) · [Index](README.md) · [Next → Custom + Built-in Tools](02-custom-tools.md)
+
 > An agent is a program that uses an LLM as its reasoning engine.
 
 ## What You'll Learn
@@ -18,11 +20,11 @@ from src.config import get_model
 
 agent = Agent(
     model=get_model(),
-    system_prompt="You are a helpful NBA assistant.",
+    system_prompt="You are a knowledgeable NBA analyst. Be concise.",
 )
 ```
 
-This agent can answer questions from its training data — historical facts, rules of the game, player biographies. But it can't tell you today's scores. It doesn't have access to the internet or any data source. It only knows what it learned during training.
+This agent can answer questions from its training data — historical facts, rules of the game, player biographies. But it can't tell you tonight's scores. It doesn't have access to the internet or any live data source. It only knows what it learned during training.
 
 This limitation is the setup for everything that follows. The gap between "knows things" and "can do things" is what tools close.
 
@@ -31,28 +33,31 @@ One thing worth noting: `get_model()` returns a model regardless of whether you'
 ## Run It
 
 ```
-python workshop/01_first_agent.py
+python 01_first_agent.py
 ```
 
 ## Expected Output
 
 ```
 ============================================================
-  Question 1: Training data (the LLM knows this)
+  Q1 — Training data (the LLM should know this)
 ============================================================
-
 The Boston Celtics won the 2024 NBA Championship, defeating the
-Dallas Mavericks 4-1 in the Finals...
+Dallas Mavericks 4-1...
 
 ============================================================
-  Question 2: Real-time data (the LLM does NOT know this)
+  Q2 — Real-time data (the LLM does NOT know this)
 ============================================================
+I don't have access to live data, so I can't tell you the current
+score of the Warriors game...
 
-I don't have access to live data, so I can't tell you today's
-exact scores. I'd recommend checking NBA.com or the ESPN app...
+============================================================
+  Same agent, new system_prompt
+============================================================
+Sure, the Cavs won last night — and pigs flew, too...
 ```
 
-The first answer is confident and correct. The second reveals the limitation — the agent admits it doesn't have real-time data (or worse, it hallucinates outdated scores).
+The first answer is confident and correct. The second reveals the limitation — the agent either admits it doesn't have real-time data or hallucinates outdated scores. The third shows that swapping `agent.system_prompt` at runtime changes personality without losing the rest of the agent.
 
 ## Try This
 
