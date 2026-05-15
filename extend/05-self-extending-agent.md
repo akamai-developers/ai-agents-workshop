@@ -11,19 +11,14 @@ Save this as `self_extending.py` and run it:
 ```python
 import os
 from strands import Agent
-from strands.models.ollama import OllamaModel
 from strands_tools import editor, shell
+from src.config import get_model
 
 # Allow file writes without prompts
 os.environ["BYPASS_TOOL_CONSENT"] = "true"
 
-model = OllamaModel(
-    host="http://localhost:11434",
-    model_id="qwen3:8b",
-)
-
 agent = Agent(
-    model=model,
+    model=get_model(),    # same vLLM-or-Ollama auto-detect from the workshop
     tools=[editor, shell],
     system_prompt="""
 You are a self-extending agent. You can create new Python tools at runtime.

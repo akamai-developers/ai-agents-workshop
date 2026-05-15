@@ -24,13 +24,13 @@ Editor Agent
     └── produces polished, fact-checked content
 ```
 
-### Step 1: The Researcher (you already built this)
+### Step 1: The Researcher (you already built this in §3)
 
 ```python
 researcher = Agent(
-    model=model, tools=mcp_tools,
+    model=model, tools=nba_tools,
     name="nba_researcher",
-    description="Look up NBA stats, scores, and standings.",
+    description="Looks up live NBA scores, stats, and standings.",
     system_prompt="You are a data researcher. Return raw facts and stats.",
 )
 ```
@@ -39,12 +39,12 @@ researcher = Agent(
 
 ```python
 fact_checker = Agent(
-    model=model, tools=mcp_tools,
+    model=model, tools=nba_tools,
     name="fact_checker",
     description="Verify NBA claims by looking up the actual data.",
     system_prompt=(
         "You are a fact checker. When given a claim about NBA stats, "
-        "use your tools to verify it. Return 'VERIFIED' or 'INCORRECT: [correction]'."
+        "use your tools to verify it. Return 'VERIFIED' or 'INCORRECT: <correction>'."
     ),
 )
 ```
@@ -56,8 +56,8 @@ editor = Agent(
     model=model,
     tools=[researcher, fact_checker],
     system_prompt=(
-        "You are a sports editor. Use the nba_researcher to gather data, "
-        "write a draft, then use fact_checker to verify your key claims. "
+        "You are a sports editor. Use nba_researcher to gather data, "
+        "draft a recap, then use fact_checker to verify your key claims. "
         "Correct any errors before publishing."
     ),
 )

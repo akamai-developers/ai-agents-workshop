@@ -36,28 +36,40 @@ Create `discord_bot.py`:
 import os
 import discord
 from dotenv import load_dotenv
+from mcp import StdioServerParameters, stdio_client
 from strands import Agent
+from strands.tools.mcp import MCPClient
 from strands.agent.conversation_manager import SlidingWindowConversationManager
-from src.config import get_model, get_tools
-from src.hooks import ToolDisplayHook
+
+from src.config import get_model
+from src.hooks import LoggingHook
+from src.tools.memory import remember_fact, recall_facts
 
 load_dotenv()
 
-model = get_model()
-tools = get_tools()
-
-# Create an agent with memory
-agent = Agent(
-    model=model,
-    tools=tools,
-    system_prompt="You are an NBA assistant in a Discord server.",
-    conversation_manager=SlidingWindowConversationManager(window_size=10),
-    callback_handler=None,
-)
+nba_mcp = MCPClient(lambda: stdio_client(
+    StdioServerParameters(command="uvx", args=["nba-stats-mcp"])
+))
 
 intents = discord.Intents.default()
 intents.message_content = True
 client = discord.Client(intents=intents)
+
+
+# We open the MCP client once at startup and reuse the agent across messages.
+# In production you'd also want per-user conversation managers — see the note
+# at the bottom of this doc.
+nba_mcp.__enter__()
+nba_tools = nba_mcp.list_tools_sync()
+
+agent = Agent(
+    model=get_model(),
+    tools=[*nba_tools, remember_fact, recall_facts],
+    system_prompt="You are an NBA assistant in a Discord server. Be concise.",
+    conversation_manager=SlidingWindowConversationManager(window_size=10),
+    hooks=[LoggingHook(verbose=False)],
+)
+
 
 @client.event
 async def on_message(message):
@@ -65,11 +77,11 @@ async def on_message(message):
         return
     if client.user.mentioned_in(message) or isinstance(message.channel, discord.DMChannel):
         content = message.content.replace(f"<@{client.user.id}>", "").strip()
-        response = agent(content)
-        # Discord has a 2000 char limit
-        text = str(response)
-        for i in range(0, len(text), 2000):
-            await message.reply(text[i:i+2000])
+        response = str(agent(content))
+        # Discord caps messages at 2000 chars.
+        for i in range(0, len(response), 2000):
+            await message.reply(response[i:i + 2000])
+
 
 client.run(os.getenv("DISCORD_TOKEN"))
 ```
@@ -88,10 +100,13 @@ python discord_bot.py
 
 Mention the bot in Discord or DM it with an NBA question.
 
-## Reference
+## Production Notes
 
-The production bot at `nba-discord-agent/src/agent.py` adds:
-- Per-user conversation scoping
-- Rate limiting
-- Heartbeat integration
-- Error handling for context window overflow
+The script above is the smallest thing that works. To make it production-shaped:
+
+- **Per-user conversation scoping** — one shared agent means everyone's messages mix into one window. Spin up an agent per `message.author.id`, or carry the conversation in §4's SQLite memory keyed by user id.
+- **Rate limiting** — Discord allows ~5 messages/5s per channel. Add a per-channel queue.
+- **Heartbeat integration** — run §5's heartbeat in a background task (`asyncio.create_task`) and post via `channel.send` from inside the heartbeat's custom `@tool`.
+- **Context window overflow** — wrap `agent(content)` and catch `ContextWindowOverflowException`; `SlidingWindowConversationManager` already trims, but a single oversized message can still hit the wall.
+
+See `nba-discord-agent/src/agent.py` in the production repo for all four wired up together.

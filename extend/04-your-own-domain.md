@@ -16,6 +16,7 @@ Write tools that fetch data from your domain's APIs:
 
 ```python
 from strands import tool
+import urllib.request, json
 
 @tool
 def get_weather(city: str) -> str:
@@ -23,14 +24,12 @@ def get_weather(city: str) -> str:
 
     Args:
         city: City name (e.g., "San Francisco")
-
-    Returns:
-        Current weather conditions and temperature.
     """
-    import requests
-    # Replace with your actual API
-    response = requests.get(f"https://api.weather.example/current?city={city}")
-    data = response.json()
+    # Replace with your actual API. We use stdlib urllib so there are no
+    # extra deps — same pattern as §2's wttr.in tool.
+    url = f"https://api.weather.example/current?city={city}"
+    with urllib.request.urlopen(url, timeout=5) as resp:
+        data = json.loads(resp.read())
     return f"{city}: {data['temp']}°F, {data['conditions']}"
 ```
 
