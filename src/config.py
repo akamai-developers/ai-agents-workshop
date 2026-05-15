@@ -22,7 +22,13 @@ def get_model():
                 "api_key": os.environ.get("VLLM_API_KEY", "not-needed"),
             },
             model_id=os.environ.get("MODEL_NAME", "Qwen/Qwen3-8B-FP8"),
-            params={"temperature": 0.3},
+            params={
+                "temperature": 0.3,
+                # Qwen3 emits <think>...</think> by default. Suppress it via the
+                # model's chat template — saves ~100-300 tokens and ~3-5s of
+                # latency per turn for the workshop.
+                "extra_body": {"chat_template_kwargs": {"enable_thinking": False}},
+            },
         )
 
     from strands.models.ollama import OllamaModel

@@ -10,11 +10,16 @@
 import _path  # noqa: F401
 
 from strands import Agent
+from strands_tools import current_time
 from src.config import get_model
 
 
+# We give the agent ONE tool: current_time. That lets it know today's
+# date (handy because the LLM's training data is from the past), but
+# it still has no way to look up live game scores.
 agent = Agent(
     model=get_model(),
+    tools=[current_time],
     system_prompt="You are a knowledgeable NBA analyst. Be concise.",
 )
 
