@@ -216,3 +216,8 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Section 4 / 5 — persistent agent memory
+memory.db
+*.sqlite
+*.sqlite3

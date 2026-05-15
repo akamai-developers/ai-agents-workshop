@@ -1,45 +1,32 @@
-"""
-Logging Hook - Log tool invocations before execution.
+"""LoggingHook — print each tool invocation so students can SEE the agent loop.
+
+Usage:
+    from src.hooks import LoggingHook
+    agent = Agent(..., hooks=[LoggingHook()])
 """
 
 import json
-from strands.hooks import HookProvider, HookRegistry
-from strands.hooks import BeforeToolCallEvent
+from strands.hooks import HookProvider, HookRegistry, BeforeToolCallEvent
 
 
 class LoggingHook(HookProvider):
-    """
-    Hook that logs tool invocations before they are executed.
-
-    Usage:
-        agent = Agent(hooks=[LoggingHook()])
-    """
+    """Print tool calls in a compact, readable format."""
 
     def __init__(self, verbose: bool = True):
-        """
-        Initialize the logging hook.
-
-        Args:
-            verbose: If True, print full input parameters. If False, just tool name.
-        """
         self.calls = 0
         self.verbose = verbose
 
     def register_hooks(self, registry: HookRegistry) -> None:
-        registry.add_callback(BeforeToolCallEvent, self.log_start)
+        registry.add_callback(BeforeToolCallEvent, self._on_before_tool)
 
-    def log_start(self, event: BeforeToolCallEvent) -> None:
+    def _on_before_tool(self, event: BeforeToolCallEvent) -> None:
         self.calls += 1
-        print("=" * 60)
-        print(f"TOOL INVOCATION: {self.calls}")
-        print("=" * 60)
-        print(f"Agent: {event.agent.name}")
-        print(f"Tool: {event.tool_use['name']}")
+        name = event.tool_use["name"]
+        agent_name = event.agent.name or "agent"
+        print(f"\n  ↳ [{agent_name}] tool call #{self.calls}: {name}")
 
         if self.verbose:
-            print("Input Parameters:")
-            formatted_input = json.dumps(event.tool_use["input"], indent=2)
-            for line in formatted_input.split("\n"):
-                print(f"  {line}")
-
-        print("=" * 60)
+            inputs = event.tool_use.get("input") or {}
+            if inputs:
+                for line in json.dumps(inputs, indent=2).splitlines():
+                    print(f"      {line}")
