@@ -8,6 +8,7 @@
 import _path  # noqa: F401
 
 import urllib.request
+from datetime import date
 from mcp import StdioServerParameters, stdio_client
 from strands import Agent, tool
 from strands.tools.mcp import MCPClient
@@ -15,6 +16,10 @@ from strands_tools import current_time
 
 from src.config import get_model
 from src.hooks import LoggingHook
+
+# An LLM doesn't know today's date — inject it so date-specific NBA
+# tools query the right day.
+TODAY = date.today().isoformat()
 
 
 @tool
@@ -43,7 +48,10 @@ with nba_mcp:
     agent = Agent(
         model=model,
         tools=[get_weather, current_time, *nba_tools],
-        system_prompt="You are an NBA analyst. Use tools for any live data.",
+        system_prompt=(
+            f"You are an NBA analyst. Today's date is {TODAY}. Use tools for "
+            f"any live data; when a tool needs a date, use {TODAY}."
+        ),
         hooks=[LoggingHook()],
     )
     print(agent("What NBA games are today? And the weather in SF?"))
@@ -58,7 +66,10 @@ with nba_mcp:
     researcher = Agent(
         model=model,
         tools=nba_tools,
-        system_prompt="Look up NBA data. Return raw facts.",
+        system_prompt=(
+            f"Look up NBA data. Today's date is {TODAY}. Return raw facts; "
+            f"when a tool needs a date, use {TODAY}."
+        ),
         name="nba_researcher",
         description="Looks up live NBA scores, stats, and standings.",
     )

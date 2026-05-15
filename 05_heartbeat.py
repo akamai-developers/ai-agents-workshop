@@ -295,7 +295,13 @@ with nba_mcp:
     agent = Agent(
         model=get_model(),
         tools=nba_tools,
-        system_prompt="You are a knowledgeable NBA reporter. Be concise.",
+        # Inject today's date — the LLM doesn't know it, and the NBA
+        # tools need it to fetch the right day's games.
+        system_prompt=(
+            f"You are a knowledgeable NBA reporter. Today's date is "
+            f"{datetime.now():%Y-%m-%d}. When a tool needs a date, use "
+            "today's date unless told otherwise. Be concise."
+        ),
         hooks=[LoggingHook(verbose=False)],
     )
 

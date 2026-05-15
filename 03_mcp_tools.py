@@ -14,6 +14,7 @@
 import _path  # noqa: F401
 
 import urllib.request
+from datetime import date
 from mcp import StdioServerParameters, stdio_client
 from strands import Agent, tool
 from strands.tools.mcp import MCPClient
@@ -21,6 +22,12 @@ from strands_tools import current_time
 
 from src.config import get_model
 from src.hooks import LoggingHook
+
+# The LLM's training data is frozen in the past — it does not know what
+# today is. Date-specific tools (get_scoreboard, get_schedule, ...) need
+# a real date, so we compute it here and inject it into the system
+# prompt below. See the note on Part A.
+TODAY = date.today().isoformat()  # e.g. "2026-05-15"
 
 
 # Custom tool carried over from Section 2 — proof that all
@@ -51,12 +58,24 @@ with nba_mcp:
 
     # ── Part A — four tool sources, one agent ──────────────
     # function + built-in + MCP, all in one tools list.
+    #
+    # GUIDING THE AGENT WITH THE SYSTEM PROMPT
+    # An LLM doesn't know today's date — its training data is frozen
+    # in the past. Ask it for "today's games" and it will use a date
+    # from its training cutoff, so get_scoreboard returns stale data
+    # (or fails). The agent cannot discover this fact on its own
+    # reliably, so we hand it the fact: TODAY is interpolated straight
+    # into the system prompt. Giving an agent the context it can't
+    # know on its own — the date, the user's name, today's inventory —
+    # is one of the most important uses of the system prompt.
     agent = Agent(
         model=model,
         tools=[get_weather, current_time, *nba_tools],
         system_prompt=(
-            "You are an NBA analyst. Use your tools for any live data — "
-            "scores, stats, weather, time. Never invent live numbers."
+            f"You are an NBA analyst. Today's date is {TODAY}. "
+            f"When a tool needs a date, use {TODAY} unless the user asks for "
+            "a different day. Use your tools for all live data — scores, "
+            "stats, weather. Never invent live numbers or dates."
         ),
         hooks=[LoggingHook(verbose=False)],
     )
@@ -82,9 +101,10 @@ with nba_mcp:
         model=model,
         tools=nba_tools,
         system_prompt=(
-            "You are an NBA data researcher. Look up the requested data with "
-            "your tools and return the raw facts — scores, dates, stat lines. "
-            "Do not editorialize."
+            f"You are an NBA data researcher. Today's date is {TODAY}. "
+            "Look up the requested data with your tools and return the raw "
+            f"facts — scores, dates, stat lines. When a tool needs a date, "
+            f"use {TODAY} unless asked otherwise. Do not editorialize."
         ),
         name="nba_researcher",
         description="Looks up live NBA scores, stats, and standings.",
