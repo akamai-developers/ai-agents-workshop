@@ -15,6 +15,20 @@ Running example: an agent that watches the NBA scoreboard and decides what's wor
 
 ---
 
+## Prerequisites
+
+Before you start, get the following set up.
+
+**Account:**
+- Create an [Akamai Cloud account](http://login.linode.com/signup?promo=akm-dev-git-300-31126-M055) with an API token (includes a $300 credit). You'll use it to spin up the GPU/Kubernetes infra that serves the vLLM endpoint (Option A). On a laptop with Ollama (Option B) it's optional, but the credit is worth grabbing either way.
+
+**Local tooling:**
+- Python 3.11+
+- `git`
+- An LLM backend — either an OpenAI-compatible endpoint like vLLM (Option A) or Ollama (Option B). Pick one in **Setup** below.
+
+---
+
 ## Setup
 
 Two LLM backend options. Pick one.
