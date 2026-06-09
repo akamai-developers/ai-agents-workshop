@@ -7,6 +7,7 @@
 import _path  # noqa: F401
 
 import os
+import json
 import shutil
 import urllib.request
 
@@ -46,17 +47,18 @@ else:
 # 4. LLM backend
 vllm_host = os.environ.get("VLLM_HOST")
 if vllm_host:
+    api_key = os.environ.get("VLLM_API_KEY", "not-needed")
+    model = os.environ.get("MODEL_NAME", "Qwen/Qwen3-8B-FP8")
+    body = json.dumps({"model": model,
+                       "messages": [{"role": "user", "content": "ping"}],
+                       "max_tokens": 1}).encode()
+    req = urllib.request.Request(f"{vllm_host.rstrip('/')}/chat/completions", data=body,
+        headers={"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"})
     try:
-        urllib.request.urlopen(f"{vllm_host.rstrip('/')}/models", timeout=3).read(1)
-        ok(f"vLLM reachable at {vllm_host}")
+        urllib.request.urlopen(req, timeout=10).read(1)
+        ok(f"vLLM reachable at {vllm_host} (model: {model})")
     except Exception as e:
         bad(f"VLLM_HOST set but unreachable: {e}")
-else:
-    try:
-        urllib.request.urlopen("http://localhost:11434/api/tags", timeout=2).read(1)
-        ok("Ollama reachable at localhost:11434")
-    except Exception:
-        bad("No LLM backend — start Ollama OR set VLLM_HOST=https://your-vllm/v1")
 
 # 5. One real call through Strands, so we know the whole stack works
 print()
@@ -64,16 +66,9 @@ if all(checks):
     print("  Trying one round-trip through Strands…")
     try:
         from strands import Agent
-        from strands_tools import current_time
         from src.config import get_model
 
-        # Pass a no-op tool. vLLM v0.20+ rejects requests with `tools: []`;
-        # Strands always emits the field, so we need at least one tool here.
-        agent = Agent(
-            model=get_model(),
-            tools=[current_time],
-            system_prompt="Reply with exactly the word: pong",
-        )
+        agent = Agent(model=get_model(), system_prompt="Reply with exactly the word: pong")
         reply = str(agent("ping")).strip().lower()
         if "pong" in reply:
             ok("end-to-end call succeeded")
