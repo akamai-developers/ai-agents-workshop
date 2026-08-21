@@ -20,7 +20,7 @@ Running example: an agent that watches the NBA scoreboard and decides what's wor
 Before you start, get the following set up.
 
 **Account:**
-- Create an [Akamai Cloud account](http://login.linode.com/signup?promo=akm-dev-git-300-31126-M055) with an API token (includes a $300 credit). You'll use it to spin up the GPU/Kubernetes infra that serves the vLLM endpoint (Option A). On a laptop with Ollama (Option B) it's optional, but the credit is worth grabbing either way.
+- Create an [Akamai Cloud account](http://login.linode.com/signup?promo=akm-dev-git-300-72326-P153) with an API token (includes a $300 credit). You'll use it to spin up the GPU/Kubernetes infra that serves the vLLM endpoint (Option A). On a laptop with Ollama (Option B) it's optional, but the credit is worth grabbing either way.
 
 **Local tooling:**
 - Python 3.11+
